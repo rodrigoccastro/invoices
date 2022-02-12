@@ -118,19 +118,11 @@ class InvoiceController < ApplicationController
       return
     else
       if @invoice.destroy
-        respond_to do |format|
-          msg = "Invoice was successfully destroyed."
-          format.html { redirect_to("/invoice/list/", notice: msg, status: :ok) }
-          format.json { render json: { notice: msg }, status: :ok }
-        end
-        return
+        msg = "Invoice was successfully destroyed."
+        return_response(url_redirect: "/invoice/list/", msg: msg, status: :ok)
       else
-        respond_to do |format|
-          msg = "Invoice was not destroyed."
-          format.html { redirect_to("/invoice/list/", notice: msg, status: :unprocessable_entity) }
-          format.json { render json: { notice: msg }, status: :unprocessable_entity }
-        end
-        return
+        msg = "Invoice was not destroyed."
+        return_response(url_redirect: "/invoice/list/", msg: msg, status: :ok)
       end
     end
   end
