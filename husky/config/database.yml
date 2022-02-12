@@ -1,0 +1,20 @@
+default: &default
+  adapter: postgresql
+  username: postgres
+  password: postgres
+  host: localhost
+  port: 5432
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  timeout: 5000
+
+development:
+  <<: *default
+  database: husky_challenge_development
+
+test:
+  <<: *default
+  database: husky_challenge_test
+
+production:
+  <<: *default
+  database: husky_challenge_production
