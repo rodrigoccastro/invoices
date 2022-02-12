@@ -62,9 +62,7 @@ class InvoiceController < ApplicationController
     end
 
     invoice_service = InvoiceService.new
-
-    @invoice = invoice_service.new_invoice(params: invoice_params_create)
-    @invoice.user_id = session[:current_user_id]
+    @invoice = invoice_service.new_invoice(user_id: session[:current_user_id], params: invoice_params_create)
 
     if @invoice.save
       msg = "Invoice was successfully created."
@@ -85,29 +83,20 @@ class InvoiceController < ApplicationController
       return
     end
 
-    @invoice = Invoice.find_by(id: invoice_params_update[:id])
+    invoice_service = InvoiceService.new
+    @invoice = invoice_service.find_by_id(id: invoice_params_update[:id])
+
     if !@invoice.present?
-      respond_to do |format|
-        msg =  "Parâmetros inválidos!"
-        format.html { redirect_to("/invoice/list/", status: :unprocessable_entity) }
-        format.json { render json: { notice: msg }, status: :unprocessable_entity }
-      end
-      return
+      msg =  "Parâmetros inválidos!"
+      return_response(url_redirect: "/invoice/list/", msg: msg, status: :unprocessable_entity)
     else
 
-      if @invoice.update(invoice_params_update)
-        respond_to do |format|
-          msg =  "Invoice was successfully updated."
-          format.html { redirect_to("/invoice/list/", status: :ok) }
-          format.json { render json: { notice: msg }, status: :ok }
-        end
+      if invoice_service.update(invoice: @invoice, params: invoice_params_update)
+        msg =  "Invoice was successfully updated."
+        return_response(url_redirect: "/invoice/list/", msg: msg, status: :ok)
       else
         msg = "Dados inválidos!"
-        respond_to do |format|
-          format.html { redirect_to("/invoice/list/", status: :unprocessable_entity) }
-          format.json { render json: { notice: msg }, status: :unprocessable_entity }
-        end
-        return
+        return_response(url_redirect: "/invoice/list/", msg: msg, status: :unprocessable_entity)
       end
 
     end
@@ -115,20 +104,17 @@ class InvoiceController < ApplicationController
 
   def delete
     if !params[:id].present?
-      respond_to do |format|
-        msg =  "Parâmetros inválidos!"
-        format.html { redirect_to("/invoice/list/", notice: msg, status: :unprocessable_entity) }
-        format.json { render json: { notice: msg }, status: :unprocessable_entity }
-      end
+      msg =  "Parâmetros inválidos!"
+      return_response(url_redirect: "/invoice/list/", msg: msg, status: :unprocessable_entity)
       return
     end
-    @invoice = Invoice.find_by(id: invoice_params_update[:id])
+
+    invoice_service = InvoiceService.new
+    @invoice = invoice_service.find_by_id(id: invoice_params_update[:id])
+
     if !@invoice.present?
-      respond_to do |format|
-        msg =  "Parâmetros inválidos!"
-        format.html { redirect_to("/invoice/list/", notice: msg, status: :unprocessable_entity) }
-        format.json { render json: { notice: msg }, status: :unprocessable_entity }
-      end
+      msg =  "Parâmetros inválidos!"
+      return_response(url_redirect: "/invoice/list/", msg: msg, status: :unprocessable_entity)
       return
     else
       if @invoice.destroy
