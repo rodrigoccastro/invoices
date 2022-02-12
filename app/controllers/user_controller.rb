@@ -7,54 +7,44 @@ class UserController < ApplicationController
     email = params[:email]
     if !email.present?
       #retorna msg de erro
-      respond_to do |format|
-        msg =  "E-mail não enviado"
-        format.html { redirect_to(root_path+"?error_id=1", notice: msg, status: :unprocessable_entity)}
-        format.json { render json: { error_id: 1, notice: msg }, status: :unprocessable_entity }
-      end
+      return_response(url_redirect: root_path+"?error_id=1", msg: "E-mail não enviado", status: :unprocessable_entity)
       return
     end
 
+    #new object service to user
+    user_service = UserService.new
+
     #verifica a existencia do email na base
-    user = User.where(email: email).take
+    user = user_service.find_user_by_email(email: email)
+
     if !user.present?
       #inclui
-      token = generate_token
-      user = User.create(email: email, token_temp: token)
+      user = user_service.new_user(email: email)
     else
+
       #verifica se já existe token
-      if user.token_main.present?
+      if user_service.has_token?(user: user)
         #recebe param que verifica se quer regerar
         update = params[:update]
         if !update
           #responde informando que já existe token
-          respond_to do |format|
-            msg =  "Já existe token para este e-mail. Você deseja regerar o token?"
-            format.html { redirect_to(root_path+"?error_id=2", notice: msg, status: :unprocessable_entity) }
-            format.json { render json: { error_id: 2, notice: msg }, status: :unprocessable_entity }
-          end
+          msg =  "Já existe token para este e-mail. Você deseja regerar o token?"
+          return_response(url_redirect: root_path+"?error_id=2", msg: msg, status: :unprocessable_entity)
           return
         else
           #caso contrario, é porque já recebeu esta info e deseja regerar
-          user.token_temp = generate_token
-          user.save
+          user_service.generate_token(user: user)
         end
       else
         #caso o token não exista, gera o token temporario
-        user.token_temp = generate_token
-        user.save
+        user_service.generate_token(user: user)
       end
     end
 
-    # envia email para usuário ativar o token e logar
-    send_mail_token(user.email, user.token_temp)
-
     # responde: informe que o usuário precisará acessar o email dele.
-    respond_to do |format|
-      msg =  "Seu token foi regerado. Você precisará acessar o email para ativar o token e fazer login."
-      format.html { redirect_to(root_path, notice: msg, status: :ok) }
-      format.json { render json: { notice: msg }, status: :ok }
-    end
+    msg =  "Seu token foi regerado. Você precisará acessar o email para ativar o token e fazer login."
+    return_response(url_redirect: root_path, msg: msg, status: :ok)
+    return
 
   end
 
@@ -66,34 +56,30 @@ class UserController < ApplicationController
 
     if !email || !token
       # params invalids
-      respond_to do |format|
-        msg =  "Parâmetros inválidos!"
-        format.html { redirect_to(root_path, notice: msg, status: :unprocessable_entity) }
-        format.json { render json: { notice: msg }, status: :unprocessable_entity }
-      end
-      return;
+      msg =  "Parâmetros inválidos!"
+      return_response(url_redirect: root_path, msg: msg, status: :unprocessable_entity)
+      return
     end
 
-    user = User.where(email: email, token_temp: token).take
+    #new object service to user
+    user_service = UserService.new
+
+
+    #verifica a existencia do email na base
+    user = user_service.find_user_by_email_and_token(email: email, value: token)
+
     if !user.present?
       # se token é invalido, devolve msg
-      respond_to do |format|
-        msg =  "Este token é inválido!"
-        format.html { redirect_to(root_path, notice: msg, status: :unprocessable_entity) }
-        format.json { render json: { notice: msg }, status: :unprocessable_entity }
-      end
-      return
+      msg =  "Este token é inválido!"
+      return_response(url_redirect: root_path, msg: msg, status: :unprocessable_entity)
     else
       #ativa o token
-      user.update(token_main: user.token_temp, token_temp: nil)
+      user_service.activate_token(user: user)
+
       #efetua login do usuario
       session[:current_user_id] = user.id
-      respond_to do |format|
-        msg =  "O token foi ativado!"
-        format.html { redirect_to(root_path, notice: msg, status: :ok) }
-        format.json { render json: { notice: msg }, status: :ok }
-      end
-      return
+      msg =  "O token foi ativado!"
+      return_response(url_redirect: root_path, msg: msg, status: :ok)
     end
   end
 
@@ -102,54 +88,42 @@ class UserController < ApplicationController
     token = params[:token]
     if !token
       # params invalids
-      respond_to do |format|
-        msg =  "Parâmetros inválidos!"
-        format.html { redirect_to(root_path, notice: msg, status: :unprocessable_entity) }
-        format.json { render json: { notice: msg }, status: :unprocessable_entity }
-      end
+      msg =  "Parâmetros inválidos!"
+      return_response(url_redirect: root_path, msg: msg, status: :unprocessable_entity)
       return
     end
 
-    user = User.where(token_main: token).take
+    #new object service to user
+    user_service = UserService.new
+
+    user = user_service.find_user_by_token(value: token)
+
     if !user.present?
       # se token é invalido, devolve msg
-      respond_to do |format|
-        msg =  "Este token é inválido!"
-        format.html { redirect_to(root_path, notice: msg, status: :unprocessable_entity) }
-        format.json { render json: { notice: msg }, status: :unprocessable_entity }
-      end
-      return
+      msg =  "Este token é inválido!"
+      return_response(url_redirect: root_path, msg: msg, status: :unprocessable_entity)
     else
       #efetua login do usuario
       session[:current_user_id] = user.id
-      respond_to do |format|
-        msg =  "O login foi realizado corretamente!"
-        format.html { redirect_to("/invoice/list", notice: msg, status: :ok) }
-        format.json { render json: { notice: msg }, status: :ok }
-      end
-      return
+      msg =  "O login foi realizado corretamente!"
+      return_response(url_redirect: "/invoice/list", msg: msg, status: :ok)
     end
   end
 
   def logout
     session.delete(:current_user_id)
-    respond_to do |format|
-      msg =  "O usuário foi deslogado!"
-      format.html { redirect_to(root_path, notice: msg, status: :ok) }
-      format.json { render json: { notice: msg }, status: :ok }
-    end
-    return
+    msg =  "O usuário foi deslogado!"
+    return_response(url_redirect: root_path, msg: msg, status: :ok)
   end
 
   private
 
-  def generate_token
-    rand(36**8).to_s(36)
+  def return_response(url_redirect:, msg:, status:)
+    respond_to do |format|
+      format.html { redirect_to(url_redirect, notice: msg, status: status) }
+      format.json { render json: { notice: msg }, status: status }
+    end
+    return
   end
 
-  def send_mail_token(email, token)
-    # Sendo que nesse email deverá ter um link para ativar o token
-    # e logar o usuário em seguida.
-    #....
-  end
 end
