@@ -38,9 +38,7 @@ class UserService
   end
 
   def send_mail_token(email:, value:)
-    # Sendo que nesse email deverá ter um link para ativar o token
-    # e logar o usuário em seguida.
-    #....
+    InvoiceMailer.new.send_mail_token(email: email, token: value)
   end
 
 end

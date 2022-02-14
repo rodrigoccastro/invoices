@@ -62,9 +62,8 @@ class InvoiceController < ApplicationController
     end
 
     invoice_service = InvoiceService.new
-    @invoice = invoice_service.new_invoice(user_id: session[:current_user_id], params: invoice_params_create)
 
-    if @invoice.save
+    if invoice_service.new_invoice(user_id: session[:current_user_id], params: invoice_params_create)
       msg = "Invoice was successfully created."
       return_response(url_redirect: "/invoice/list/", msg: msg, status: :ok)
     else

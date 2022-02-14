@@ -17,9 +17,13 @@ class InvoiceService
   end
 
   def new_invoice(user_id:, params:)
-    user = Invoice.new(params)
-    user.user_id = user_id
-    user
+    invoice = Invoice.new(params)
+    invoice.user_id = user_id
+    if invoice.save
+      InvoiceMailer.new.send_mail_invoice(invoice: invoice)
+      return true;
+    end
+    return false;
   end
 
 end
