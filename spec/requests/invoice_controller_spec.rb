@@ -128,8 +128,12 @@ RSpec.describe InvoiceController, type: :request do
     context "without authenticated user" do
       it "respond unauthorized access" do
         post "/invoice/create"
-
         expect(response).to_not be_successful
+
+        #test just from json
+        headers = { "ACCEPT" => "application/json" }
+        post "/invoice/create", :headers => headers
+        expect(JSON.parse(response.body)).to eq(msg_unauthorized_access.stringify_keys)
       end
     end
     context "with authenticated" do
@@ -140,8 +144,12 @@ RSpec.describe InvoiceController, type: :request do
       end
       it "without params" do
         post "/invoice/create"
-
         expect(response).to_not be_successful
+
+        #test just from json
+        headers = { "ACCEPT" => "application/json" }
+        post "/invoice/create", :headers => headers
+        expect(JSON.parse(response.body)).to eq(msg_params_invalids.stringify_keys)
       end
       it "with wrong params" do
         post "/invoice/create", params: { number: "123", date: "aaa", company: "cp", payer: "p", value: "qq", emails: "xx" }
