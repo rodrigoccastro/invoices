@@ -66,18 +66,15 @@ RSpec.describe UserController, type: :request do
     context "try activate user" do
       it "without params" do
         get "/user/activate"
-
         expect(response).to_not be_successful
       end
       it "without token existent" do
         get "/user/activate", params: { email: "email1@email.com", token: "123" }
-
         expect(response).to_not be_successful
       end
       it "activate user" do
         user = User.create(email: "email1@email.com", token_temp: "12bh")
         get "/user/activate", params: { email: user.email, token: user.token_temp }
-
         expect(response).to be_successful
       end
     end
@@ -87,18 +84,15 @@ RSpec.describe UserController, type: :request do
     context "try activate user" do
       it "without params" do
         get "/user/login"
-
         expect(response).to_not be_successful
       end
       it "without user existent" do
         get "/user/login", params: { token: "123abc" }
-
         expect(response).to_not be_successful
       end
       it "activate user" do
         user = User.create(email: "email1@email.com", token_main: "12bh")
         get "/user/login", params: { email: user.email, token: user.token_main }
-
         expect(response).to be_successful
       end
     end
@@ -108,7 +102,6 @@ RSpec.describe UserController, type: :request do
     context "when logged" do
       it "delete session" do
         get "/user/logout"
-
         expect(response).to be_successful
       end
     end
