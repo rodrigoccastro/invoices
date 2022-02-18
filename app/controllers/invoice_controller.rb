@@ -143,8 +143,8 @@ class InvoiceController < ApplicationController
   end
   def return_response_render(html:, json:, status:)
     respond_to do |format|
-      format.html { render :index, status: :ok }
-      format.json { render json: { data: @invoices }, status: :ok }
+      format.html { render html, status: status }
+      format.json { render json: json, status: status }
     end
   end
 end

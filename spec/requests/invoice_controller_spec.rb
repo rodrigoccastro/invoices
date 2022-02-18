@@ -89,10 +89,10 @@ RSpec.describe InvoiceController, type: :request do
         get "/invoice/show"
         expect(response).to_not be_successful
 
-         #test just from json
-         headers = { "ACCEPT" => "application/json" }
-         get "/invoice/show", :headers => headers
-         expect(JSON.parse(response.body)).to eq(msg_unauthorized_access.stringify_keys)
+        #test just from json
+        headers = { "ACCEPT" => "application/json" }
+        get "/invoice/show", :headers => headers
+        expect(JSON.parse(response.body)).to eq(msg_unauthorized_access.stringify_keys)
       end
     end
     context "with authenticated" do
@@ -105,11 +105,20 @@ RSpec.describe InvoiceController, type: :request do
         get "/invoice/show"
 
         expect(response).to_not be_successful
+
+        #test just from json
+        headers = { "ACCEPT" => "application/json" }
+        get "/invoice/show", :headers => headers
+        expect(JSON.parse(response.body)).to eq(msg_params_invalids.stringify_keys)
       end
       it "with param id for user exits" do
         get "/invoice/show", params: { id: invoice1.id }
 
         expect(response).to be_successful
+        #test just from json
+        headers = { "ACCEPT" => "application/json" }
+        get "/invoice/show", params: { id: invoice1.id }, :headers => headers
+        expect(JSON.parse(response.body)).to eq({ "data": invoice1.as_json }.stringify_keys)
       end
     end
   end
