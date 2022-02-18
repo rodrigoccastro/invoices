@@ -35,8 +35,12 @@ RSpec.describe InvoiceController, type: :request do
     context "without authenticated user" do
       it "respond unauthorized access" do
         get "/invoice/list"
-
         expect(response).to_not be_successful
+
+        #test just from json
+        headers = { "ACCEPT" => "application/json" }
+        get "/invoice/list", :headers => headers
+        expect(JSON.parse(response.body)).to eq(msg_unauthorized_access.stringify_keys)
       end
     end
 
@@ -48,23 +52,33 @@ RSpec.describe InvoiceController, type: :request do
       end
       it "without params" do
         get "/invoice/list"
-
         expect(response).to be_successful
+
+        #test just from json
+        headers = { "ACCEPT" => "application/json" }
+        get "/invoice/list", :headers => headers
+
+        #verify quantity, order and content
+        lista = InvoiceService.new.list_all_invoices
+        expect(lista.count).to eq(3)
+        expect(lista[0].id).to eq(invoice3.id)
+        expect(lista[1].id).to eq(invoice2.id)
+        expect(lista[2].id).to eq(invoice1.id)
+        expect(JSON.parse(response.body)).to eq({ "data": lista.as_json }.stringify_keys)
       end
       it "with param date" do
-        get "/invoice/list", params: { date: invoice1.date }
-
+        get "/invoice/list", params: { filter_type: "date", filter_value: invoice1.date }
         expect(response).to be_successful
-      end
-      it "with param id for user wrong" do
-        get "/invoice/list", params: { id: 0 }
 
-        expect(response).to be_successful
-      end
-      it "with param id" do
-        get "/invoice/list", params: { id: invoice1.id }
+        #test just from json
+        headers = { "ACCEPT" => "application/json" }
+        get "/invoice/list", params: { filter_type: "date", filter_value: invoice1.date }, :headers => headers
 
-        expect(response).to be_successful
+        #verify quantity and content
+        lista = InvoiceService.new.list_invoices_by_date(date: invoice1.date)
+        expect(lista.count).to eq(1)
+        expect(lista[0].id).to eq(invoice1.id)
+        expect(JSON.parse(response.body)).to eq({ "data": lista.as_json }.stringify_keys)
       end
     end
   end
@@ -73,8 +87,12 @@ RSpec.describe InvoiceController, type: :request do
     context "without authenticated user" do
       it "respond unauthorized access" do
         get "/invoice/show"
-
         expect(response).to_not be_successful
+
+         #test just from json
+         headers = { "ACCEPT" => "application/json" }
+         get "/invoice/show", :headers => headers
+         expect(JSON.parse(response.body)).to eq(msg_unauthorized_access.stringify_keys)
       end
     end
     context "with authenticated" do
