@@ -167,6 +167,11 @@ RSpec.describe InvoiceController, type: :request do
       it "respond unauthorized access" do
         post "/invoice/update"
         expect(response).to_not be_successful
+
+        #test just from json
+        headers = { "ACCEPT" => "application/json" }
+        post "/invoice/update", :headers => headers
+        expect(JSON.parse(response.body)).to eq(msg_unauthorized_access.stringify_keys)
       end
     end
     context "with authenticated" do
@@ -183,8 +188,25 @@ RSpec.describe InvoiceController, type: :request do
         expect(response).to_not be_successful
       end
       it "with correct parameters" do
-        post "/invoice/update", params: { id: invoice1.id, number: "123", date: "2022-05-10", company: "cp", payer: "p", value: 15, emails: "xx" }
+        invoice1.number = "number upd"
+        invoice1.date = "2022-11-12"
+        invoice1.company = "company upd"
+        invoice1.payer = "payer upd"
+        invoice1.value = 345
+        invoice1.emails = "email@email.com"
+        post "/invoice/update", params: { id: invoice1.id, number: invoice1.number,
+                                          date: invoice1.date, company: invoice1.company,
+                                          payer: invoice1.payer, value: invoice1.value,
+                                          emails: invoice1.emails }
         expect(response).to be_successful
+        obj = InvoiceService.new.find_by_id(id: invoice1.id)
+        expect(obj.id).to eq (invoice1.id)
+        expect(obj.number).to eq (invoice1.number)
+        expect(obj.date).to eq (invoice1.date)
+        expect(obj.company).to eq (invoice1.company)
+        expect(obj.payer).to eq (invoice1.payer)
+        expect(obj.value).to eq (invoice1.value)
+        expect(obj.emails).to eq (invoice1.emails)
       end
     end
   end
