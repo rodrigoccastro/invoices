@@ -139,7 +139,6 @@ RSpec.describe InvoiceController, type: :request do
     context "with authenticated" do
       before do
         user = User.create(email: "email1@email.com", token_main: "12bh")
-
         get "/user/login", params: { email: user.email, token: user.token_main }
       end
       it "without params" do
@@ -153,13 +152,10 @@ RSpec.describe InvoiceController, type: :request do
       end
       it "with wrong params" do
         post "/invoice/create", params: { number: "123", date: "aaa", company: "cp", payer: "p", value: "qq", emails: "xx" }
-
         expect(response).to_not be_successful
       end
-
       it "with correct parameters" do
         post "/invoice/create", params: { number: "123", date: "2022-05-10", company: "cp", payer: "p", value: 15, emails: "xx" }
-
         expect(response).to be_successful
       end
     end
@@ -170,30 +166,24 @@ RSpec.describe InvoiceController, type: :request do
     context "without authenticated user" do
       it "respond unauthorized access" do
         post "/invoice/update"
-
         expect(response).to_not be_successful
       end
     end
     context "with authenticated" do
       before do
         user = User.create(email: "email1@email.com", token_main: "12bh")
-
         get "/user/login", params: { email: user.email, token: user.token_main }
       end
       it "without params" do
         post "/invoice/update"
-
         expect(response).to_not be_successful
       end
       it "with wrong params" do
         post "/invoice/update", params: { id: invoice1.id, number: "123", date: "aaa", company: "cp", payer: "p", value: "qq", emails: "xx" }
-
         expect(response).to_not be_successful
       end
-
       it "with correct parameters" do
         post "/invoice/update", params: { id: invoice1.id, number: "123", date: "2022-05-10", company: "cp", payer: "p", value: 15, emails: "xx" }
-
         expect(response).to be_successful
       end
     end
@@ -203,30 +193,24 @@ RSpec.describe InvoiceController, type: :request do
     context "without authenticated user" do
       it "respond unauthorized access" do
         delete "/invoice/delete"
-
         expect(response).to_not be_successful
       end
     end
     context "with authenticated" do
       before do
         user = User.create(email: "email1@email.com", token_main: "12bh")
-
         get "/user/login", params: { email: user.email, token: user.token_main }
       end
       it "without params" do
         delete "/invoice/delete"
-
         expect(response).to_not be_successful
       end
       it "with wrong params" do
         delete "/invoice/delete", params: { id: 0 }
-
         expect(response).to_not be_successful
       end
-
       it "with correct parameters" do
         delete "/invoice/delete", params: { id: invoice1.id }
-
         expect(response).to be_successful
       end
     end
