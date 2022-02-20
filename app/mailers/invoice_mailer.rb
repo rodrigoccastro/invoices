@@ -6,6 +6,7 @@ class InvoiceMailer < ApplicationMailer
     #....
     #....
   end
+
   def send_mail_invoice(invoice:)
     #As invoices deverão ser enviadas por email com:
     #Corpo de e-mail
