@@ -15,13 +15,16 @@ class UserService
   def new_user(email:)
     user = User.create(email: email, token_temp: token)
     send_mail_token(email: user.email, value: user.token_temp)
-    return user.present?
+    user
   end
 
   def generate_token(user:)
     user.token_temp = token
-    user.save
-    send_mail_token(email: user.email, value: user.token_temp)
+    if user.save
+      send_mail_token(email: user.email, value: user.token_temp)
+      return true
+    end
+    return false
   end
 
   def has_token?(user:)

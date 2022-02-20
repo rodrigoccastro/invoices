@@ -28,22 +28,31 @@ RSpec.describe "UserService", type: :business do
 
   describe ".new_user" do
     it "create new user" do
-      expect(subject.new_user(email: "email2@email.com")).to eq(true)
+      expect(subject.new_user(email: "email2@email.com").present?).to eq(true)
     end
   end
 
-  describe ".generate_token?" do
-    it "xxx" do
-    end
-  end
-
-  describe ".has_token?" do
-    it "xxxx" do
+  describe ".generate_token" do
+    it "generate token" do
+      user2 = subject.new_user(email: "email2@email.com")
+      expect(subject.generate_token(user: user2)).to eq(true)
     end
   end
 
   describe ".activate_token" do
-    it "xxxx" do
+    it "activate token" do
+      user2 = subject.new_user(email: "email2@email.com")
+      subject.generate_token(user: user2)
+      expect(subject.activate_token(user: user2)).to eq(true)
+    end
+  end
+
+  describe ".has_token?" do
+    it "has token?" do
+      user2 = subject.new_user(email: "email2@email.com")
+      subject.generate_token(user: user2)
+      subject.activate_token(user: user2)
+      expect(subject.has_token?(user: user2)).to eq(true)
     end
   end
 
