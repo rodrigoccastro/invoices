@@ -3,28 +3,28 @@ require 'rails_helper'
 RSpec.describe UserController, type: :request do
 
   let(:msg_param_invalid_email) do
-    { "notice" => "E-mail não enviado" }
+    { "notice" => "E-mail not present" }
   end
   let(:msg_params_invalids) do
-    { "notice" => "Parâmetros inválidos!" }
+    { "notice" => "Params invalids!" }
   end
   let(:msg_token_sucess) do
-    { "notice" => "Seu token foi regerado. Você precisará acessar o email para ativar o token e fazer login." }
+    { "notice" => "Your token was regenerated. You need access your email for activate your token and login." }
   end
   let(:msg_token_existent) do
-    { "notice" => "Já existe token para este e-mail. Você deseja regerar o token?" }
+    { "notice" => "This email has token. Do you want regenerate token?" }
   end
   let(:msg_token_invalid) do
-    { "notice" => "Este token é inválido!" }
+    { "notice" => "This token is invalid!" }
   end
   let(:msg_activate) do
-    { "notice" => "O token foi ativado!" }
+    { "notice" => "This token was activated!" }
   end
   let(:msg_login) do
-    { "notice" => "O token foi ativado!" }
+    { "notice" => "Login successfully!" }
   end
   let(:msg_deslogado) do
-    { "notice" => "O usuário foi deslogado!" }
+    { "notice" => "The user has been logged out!" }
   end
 
   describe "GET #token" do

@@ -7,7 +7,7 @@ class UserController < ApplicationController
     email = params[:email]
     if !email.present?
       #return error
-      return_response(url_redirect: root_path+"?error_id=1", msg: "E-mail não enviado", status: :unprocessable_entity)
+      return_response(url_redirect: root_path+"?error_id=1", msg: "E-mail not present", status: :unprocessable_entity)
       return
     end
 
@@ -28,7 +28,7 @@ class UserController < ApplicationController
         update = params[:update]
         if !update
           #return with message: token exist, do you want regenerate token?
-          msg =  "Já existe token para este e-mail. Você deseja regerar o token?"
+          msg =  "This email has token. Do you want regenerate token?"
           return_response(url_redirect: root_path+"?error_id=2", msg: msg, status: :unprocessable_entity)
           return
         else
@@ -41,8 +41,8 @@ class UserController < ApplicationController
       end
     end
 
-    # return message: the user need acess your email
-    msg =  "Seu token foi regerado. Você precisará acessar o email para ativar o token e fazer login."
+    # return message: the user need access your email
+    msg =  "Your token was regenerated. You need access your email for activate your token and login."
     return_response(url_redirect: root_path, msg: msg, status: :ok)
     return
 
@@ -50,13 +50,13 @@ class UserController < ApplicationController
 
   def activate
 
-    #recebe email e token de param
+    #recieve email and token by params
     email = params[:email]
     token = params[:token]
 
     if !email || !token
       # params invalids
-      msg =  "Parâmetros inválidos!"
+      msg =  "Params invalids!"
       return_response(url_redirect: root_path, msg: msg, status: :unprocessable_entity)
       return
     end
@@ -65,20 +65,20 @@ class UserController < ApplicationController
     user_service = UserService.new
 
 
-    #verifica a existencia do email na base
+    #verify if exists email in database
     user = user_service.find_user_by_email_and_token(email: email, value: token)
 
     if !user.present?
-      # se token é invalido, devolve msg
-      msg =  "Este token é inválido!"
+      # if token is invalid, return msg
+      msg =  "This token is invalid!"
       return_response(url_redirect: root_path, msg: msg, status: :unprocessable_entity)
     else
-      #ativa o token
+      # activate token
       user_service.activate_token(user: user)
 
-      #efetua login do usuario
+      # do login for user
       session[:current_user_id] = user.id
-      msg =  "O token foi ativado!"
+      msg =  "This token was activated!"
       return_response(url_redirect: root_path, msg: msg, status: :ok)
     end
 
@@ -86,11 +86,11 @@ class UserController < ApplicationController
 
   def login
 
-    #recebe token de param
+    # recieve token by param
     token = params[:token]
     if !token
       # params invalids
-      msg =  "Parâmetros inválidos!"
+      msg =  "Params invalids!"
       return_response(url_redirect: root_path, msg: msg, status: :unprocessable_entity)
       return
     end
@@ -101,13 +101,13 @@ class UserController < ApplicationController
     user = user_service.find_user_by_token(value: token)
 
     if !user.present?
-      # se token é invalido, devolve msg
-      msg =  "Este token é inválido!"
+      # if token is invali, return msg
+      msg =  "This token is invalid!"
       return_response(url_redirect: root_path, msg: msg, status: :unprocessable_entity)
     else
-      #efetua login do usuario
+      # do login for user
       session[:current_user_id] = user.id
-      msg =  "O login foi realizado corretamente!"
+      msg =  "Login successfully!"
       return_response(url_redirect: "/invoice/list", msg: msg, status: :ok)
     end
 
@@ -115,7 +115,7 @@ class UserController < ApplicationController
 
   def logout
     session.delete(:current_user_id)
-    msg =  "O usuário foi deslogado!"
+    msg =  "The user has been logged out!"
     return_response(url_redirect: root_path, msg: msg, status: :ok)
   end
 
