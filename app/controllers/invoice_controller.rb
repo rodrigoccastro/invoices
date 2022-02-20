@@ -116,7 +116,7 @@ class InvoiceController < ApplicationController
       return_response(url_redirect: "/invoice/list/", msg: msg, status: :unprocessable_entity)
       return
     else
-      if @invoice.destroy
+      if invoice_service.delete(invoice: @invoice)
         msg = "Invoice was successfully destroyed."
         return_response(url_redirect: "/invoice/list/", msg: msg, status: :ok)
       else

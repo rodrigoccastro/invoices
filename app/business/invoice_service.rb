@@ -12,10 +12,6 @@ class InvoiceService
     Invoice.find_by(id:id)
   end
 
-  def update (invoice:, params:)
-    invoice.update(params)
-  end
-
   def new_invoice(user_id:, params:)
     invoice = Invoice.new(params)
     invoice.user_id = user_id
@@ -24,6 +20,14 @@ class InvoiceService
       return true;
     end
     return false;
+  end
+
+  def update(invoice:, params:)
+    invoice.update(params)
+  end
+
+  def delete(invoice:)
+    invoice.destroy.present?
   end
 
 end
