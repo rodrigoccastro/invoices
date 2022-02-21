@@ -1,6 +1,6 @@
 class UserController < ApplicationController
 
-  #fenerate tokens
+  #generate tokens
   def token
 
     #receive email by param
