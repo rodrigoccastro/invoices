@@ -1,13 +1,11 @@
 class InvoiceController < ApplicationController
 
-  before_action do
+  def index
     if !session || !session[:current_user_id]
       msg = "Acesso não autorizado!"
       return_response(url_redirect: root_path, msg: msg, status: :unprocessable_entity)
+      return
     end
-  end
-
-  def index
     # lista todos com paginacao?
     # pode ter filtro por data e numero invoice
     filter_type = params[:filter_type]
@@ -16,12 +14,12 @@ class InvoiceController < ApplicationController
     invoice_service = InvoiceService.new
 
     if !filter_type || !filter_value
-      @invoices = invoice_service.list_all_invoices
+      @invoices = invoice_service.list_all_invoices(user_id: session[:current_user_id])
       #retorno de listagem]
       return_response_render(html: :index, json: { data: @invoices }, status: :ok)
     else
       if filter_type == "date"
-        @invoices = invoice_service.list_invoices_by_date(date: filter_value)
+        @invoices = invoice_service.list_invoices_by_date(user_id: session[:current_user_id], date: filter_value)
         #retorno de listagem
         return_response_render(html: :index, json: { data: @invoices }, status: :ok)
       end
@@ -42,7 +40,7 @@ class InvoiceController < ApplicationController
 
     invoice_service = InvoiceService.new
 
-    @invoice = invoice_service.find_by_id(id: id)
+    @invoice = invoice_service.find_by_id(user_id: nil, id: id)
     if !@invoice.present?
       msg =  "Invoice não encontrado!"
       return_response(url_redirect: "/invoice/list/", msg: msg, status: :unprocessable_entity)
@@ -53,6 +51,11 @@ class InvoiceController < ApplicationController
   end
 
   def create
+    if !session || !session[:current_user_id]
+      msg = "Acesso não autorizado!"
+      return_response(url_redirect: root_path, msg: msg, status: :unprocessable_entity)
+      return
+    end
     if !invoice_params_create[:number].present? || !invoice_params_create[:date].present? ||
       !invoice_params_create[:company].present? || !invoice_params_create[:payer].present? ||
       !invoice_params_create[:value].present? || !invoice_params_create[:emails].present?
@@ -73,6 +76,11 @@ class InvoiceController < ApplicationController
   end
 
   def update
+    if !session || !session[:current_user_id]
+      msg = "Acesso não autorizado!"
+      return_response(url_redirect: root_path, msg: msg, status: :unprocessable_entity)
+      return
+    end
     if !invoice_params_update[:id].present? ||
       !invoice_params_update[:number].present? || !invoice_params_update[:date].present? ||
       !invoice_params_update[:company].present? || !invoice_params_update[:payer].present? ||
@@ -83,7 +91,7 @@ class InvoiceController < ApplicationController
     end
 
     invoice_service = InvoiceService.new
-    @invoice = invoice_service.find_by_id(id: invoice_params_update[:id])
+    @invoice = invoice_service.find_by_id(user_id: session[:current_user_id], id: invoice_params_update[:id])
 
     if !@invoice.present?
       msg =  "Parâmetros inválidos!"
@@ -102,6 +110,11 @@ class InvoiceController < ApplicationController
   end
 
   def delete
+    if !session || !session[:current_user_id]
+      msg = "Acesso não autorizado!"
+      return_response(url_redirect: root_path, msg: msg, status: :unprocessable_entity)
+      return
+    end
     if !params[:id].present?
       msg =  "Parâmetros inválidos!"
       return_response(url_redirect: "/invoice/list/", msg: msg, status: :unprocessable_entity)
@@ -109,7 +122,7 @@ class InvoiceController < ApplicationController
     end
 
     invoice_service = InvoiceService.new
-    @invoice = invoice_service.find_by_id(id: invoice_params_update[:id])
+    @invoice = invoice_service.find_by_id(user_id: session[:current_user_id], id: invoice_params_update[:id])
 
     if !@invoice.present?
       msg =  "Parâmetros inválidos!"

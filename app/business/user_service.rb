@@ -14,14 +14,14 @@ class UserService
 
   def new_user(email:)
     user = User.create(email: email, token_temp: token)
-    send_mail_token(email: user.email, value: user.token_temp)
+    UserMailer.with(user: user).send_mail_token.deliver_later
     user
   end
 
   def generate_token(user:)
     user.token_temp = token
     if user.save
-      send_mail_token(email: user.email, value: user.token_temp)
+      UserMailer.with(user: user).send_mail_token.deliver_later
       return true
     end
     return false
@@ -39,10 +39,6 @@ class UserService
 
   def token
     rand(36**8).to_s(36)
-  end
-
-  def send_mail_token(email:, value:)
-    InvoiceMailer.new.send_mail_token(email: email, token: value)
   end
 
 end

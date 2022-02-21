@@ -46,9 +46,8 @@ RSpec.describe InvoiceController, type: :request do
 
     context "with authenticated" do
       before do
-        #session[:current_user_id] = user.id
-        user = User.create(email: "email1@email.com", token_main: "12bh")
-        get "/user/login", params: { email: user.email, token: user.token_main }
+        user2 = User.create(email: "email1@email.com", token_main: "12bh")
+        get "/user/login", params: { email: user2.email, token: user2.token_main }
       end
       it "without params" do
         get "/invoice/list"
@@ -59,7 +58,7 @@ RSpec.describe InvoiceController, type: :request do
         get "/invoice/list", :headers => headers
 
         #verify quantity, order and content
-        lista = InvoiceService.new.list_all_invoices
+        lista = InvoiceService.new.list_all_invoices(user_id: user.id)
         expect(lista.count).to eq(3)
         expect(lista[0].id).to eq(invoice3.id)
         expect(lista[1].id).to eq(invoice2.id)
@@ -75,7 +74,7 @@ RSpec.describe InvoiceController, type: :request do
         get "/invoice/list", params: { filter_type: "date", filter_value: invoice1.date }, :headers => headers
 
         #verify quantity and content
-        lista = InvoiceService.new.list_invoices_by_date(date: invoice1.date)
+        lista = InvoiceService.new.list_invoices_by_date(user_id: user.id, date: invoice1.date)
         expect(lista.count).to eq(1)
         expect(lista[0].id).to eq(invoice1.id)
         expect(JSON.parse(response.body)).to eq({ "data": lista.as_json }.stringify_keys)
@@ -84,23 +83,7 @@ RSpec.describe InvoiceController, type: :request do
   end
 
   describe "GET #show" do
-    context "without authenticated user" do
-      it "respond unauthorized access" do
-        get "/invoice/show"
-        expect(response).to_not be_successful
-
-        #test just from json
-        headers = { "ACCEPT" => "application/json" }
-        get "/invoice/show", :headers => headers
-        expect(JSON.parse(response.body)).to eq(msg_unauthorized_access.stringify_keys)
-      end
-    end
-    context "with authenticated" do
-      before do
-        user = User.create(email: "email1@email.com", token_main: "12bh")
-
-        get "/user/login", params: { email: user.email, token: user.token_main }
-      end
+    context "for all" do
       it "without param id" do
         get "/invoice/show"
 
@@ -176,8 +159,8 @@ RSpec.describe InvoiceController, type: :request do
     end
     context "with authenticated" do
       before do
-        user = User.create(email: "email1@email.com", token_main: "12bh")
-        get "/user/login", params: { email: user.email, token: user.token_main }
+        user2 = User.create(email: "email1@email.com", token_main: "12bh")
+        get "/user/login", params: { email: user2.email, token: user2.token_main }
       end
       it "without params" do
         post "/invoice/update"
@@ -199,7 +182,7 @@ RSpec.describe InvoiceController, type: :request do
                                           payer: invoice1.payer, value: invoice1.value,
                                           emails: invoice1.emails }
         expect(response).to be_successful
-        obj = InvoiceService.new.find_by_id(id: invoice1.id)
+        obj = InvoiceService.new.find_by_id(user_id: user.id, id: invoice1.id)
         expect(obj.id).to eq (invoice1.id)
         expect(obj.number).to eq (invoice1.number)
         expect(obj.date).to eq (invoice1.date)
@@ -220,8 +203,8 @@ RSpec.describe InvoiceController, type: :request do
     end
     context "with authenticated" do
       before do
-        user = User.create(email: "email1@email.com", token_main: "12bh")
-        get "/user/login", params: { email: user.email, token: user.token_main }
+        user2 = User.create(email: "email1@email.com", token_main: "12bh")
+        get "/user/login", params: { email: user2.email, token: user2.token_main }
       end
       it "without params" do
         delete "/invoice/delete"

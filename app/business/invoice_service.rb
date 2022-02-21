@@ -1,22 +1,26 @@
 class InvoiceService
 
-  def list_all_invoices()
-    Invoice.order('created_at DESC')
+  def list_all_invoices(user_id:)
+    Invoice.where(user_id: user_id).order('created_at DESC')
   end
 
-  def list_invoices_by_date(date:)
-    Invoice.where(date: date).order('created_at DESC')
+  def list_invoices_by_date(user_id:, date:)
+    Invoice.where(user_id: user_id).where(date: date).order('created_at DESC')
   end
 
-  def find_by_id(id:)
-    Invoice.find_by(id:id)
+  def find_by_id(user_id:, id:)
+    if user_id.present?
+      Invoice.where(user_id: user_id).where(id: id).take
+    else
+      Invoice.find(id)
+    end
   end
 
   def new_invoice(user_id:, params:)
     invoice = Invoice.new(params)
     invoice.user_id = user_id
     if invoice.save
-      InvoiceMailer.new.send_mail_invoice(invoice: invoice)
+      InvoiceMailer.with(invoice: invoice).send_mail_invoice.deliver_later
       return true;
     end
     return false;

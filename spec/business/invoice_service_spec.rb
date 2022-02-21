@@ -20,7 +20,7 @@ RSpec.describe "InvoiceService", type: :business do
 
   describe ".list_all_invoices" do
     it "return all invoices" do
-      list = subject.list_all_invoices
+      list = subject.list_all_invoices(user_id: user.id)
       expect(list.count).to eq(3)
       expect(list[0].id).to eq(invoice3.id)
       expect(list[1].id).to eq(invoice2.id)
@@ -30,7 +30,7 @@ RSpec.describe "InvoiceService", type: :business do
 
   describe ".list_invoices_by_date(date:)" do
     it "return list of invoices by date" do
-      list = subject.list_invoices_by_date(date: invoice1.date)
+      list = subject.list_invoices_by_date(user_id: user.id, date: invoice1.date)
       expect(list.count).to eq(1)
       expect(list[0].id).to eq(invoice1.id)
     end
@@ -38,7 +38,7 @@ RSpec.describe "InvoiceService", type: :business do
 
   describe ".find_by_id(id:)" do
     it "return invoice by id" do
-      obj = subject.find_by_id(id: invoice1.id)
+      obj = subject.find_by_id(user_id: user.id, id: invoice1.id)
       expect(obj.id).to eq(invoice1.id)
     end
   end
@@ -60,7 +60,7 @@ RSpec.describe "InvoiceService", type: :business do
                 value: 345, emails: "email@email.com" }
 
       expect(subject.update(invoice: invoice1, params: params)).to eq(true)
-      obj = subject.find_by_id(id: invoice1.id)
+      obj = subject.find_by_id(user_id: user.id, id: invoice1.id)
       expect(obj.number).to eq (params[:number])
       expect(obj.date).to eq (params[:date])
       expect(obj.company).to eq (params[:company])
