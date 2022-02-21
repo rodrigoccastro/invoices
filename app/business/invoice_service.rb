@@ -16,11 +16,11 @@ class InvoiceService
     end
   end
 
-  def new_invoice(user_id:, params:)
+  def new_invoice(root_path:, user_id:, params:)
     invoice = Invoice.new(params)
     invoice.user_id = user_id
     if invoice.save
-      InvoiceMailer.with(invoice: invoice).send_mail_invoice.deliver_later
+      InvoiceMailer.with(root_path: root_path, invoice: invoice).send_mail_invoice.deliver_later
       return true;
     end
     return false;

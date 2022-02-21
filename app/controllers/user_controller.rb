@@ -19,7 +19,7 @@ class UserController < ApplicationController
 
     if !user.present?
       # add
-      user = user_service.new_user(email: email)
+      user = user_service.new_user(root_path: root_path, email: email)
     else
 
       # verify if has token

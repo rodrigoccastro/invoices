@@ -16,7 +16,7 @@ RSpec.describe "InvoiceService", type: :business do
   let!(:invoice1) { Invoice.create(invoice_params1) }
   let!(:invoice2) { Invoice.create(invoice_params2) }
   let!(:invoice3) { Invoice.create(invoice_params3) }
-
+  let(:root_path) { "http://localhost:3000" }
 
   describe ".list_all_invoices" do
     it "return all invoices" do
@@ -49,7 +49,7 @@ RSpec.describe "InvoiceService", type: :business do
         company: "company upd", payer: "payer upd",
         value: 345, emails: "email@email.com" }
 
-      expect(subject.new_invoice(user_id: user.id, params: params)).to eq(true)
+      expect(subject.new_invoice(root_path: root_path, user_id: user.id, params: params)).to eq(true)
     end
   end
 

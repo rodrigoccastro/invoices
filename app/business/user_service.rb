@@ -12,9 +12,9 @@ class UserService
     user = User.where(token_main: value).take
   end
 
-  def new_user(email:)
+  def new_user(root_path:, email:)
     user = User.create(email: email, token_temp: token)
-    UserMailer.with(user: user).send_mail_token.deliver_later
+    UserMailer.with(root_path: root_path, user: user).send_mail_token.deliver_later
     user
   end
 
