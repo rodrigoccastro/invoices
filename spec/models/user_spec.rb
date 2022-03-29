@@ -1,25 +1,23 @@
 require 'rails_helper'
 
-RSpec.describe "User", type: :model do
+RSpec.describe User, type: :model do
 
-  let(:email_valid) { "email@email.com" }
-  let(:email_invalid) { "email@email/com" }
-  let(:user) { User.new(email: email_invalid) }
-  let(:token_main) { "12rh56bc" }
-  let(:token_temp) { "78rh90bc" }
+  subject {
+    described_class.new(email: "email@email.com", token_main: "12rh56bc", token_temp: "78rh90bc")
+  }
 
-  context "try save with invalid email" do
-    it "validation values" do
-      expect(user.save).to eq(false)
-    end
+  it "with valid attributes" do
+    expect(subject).to be_valid
   end
 
-  context "try save with valid values" do
-    it "validation values" do
-      expect(user.update(email: email_valid)).to eq(true)
-      expect(user.update(token_main: nil, token_temp: nil)).to eq(true)
-      expect(user.update(token_main: token_main, token_temp: token_temp)).to eq(true)
-    end
+  it "without email" do
+    subject.email = nil
+    expect(subject).to_not be_valid
+  end
+
+  it "without valid email" do
+    subject.email = "email@email/com"
+    expect(subject).to_not be_valid
   end
 
 end
